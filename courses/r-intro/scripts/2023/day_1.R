@@ -1,11 +1,67 @@
-# october_2023.R
-# ~~~~~~~~~~~~~~
+library(openair)
+library(dplyr)
+library(lubridate)
 
-# Enter your code here as you follow along with the session
-# If just want to try things out, use the Console below interactively until you've got
-# code you're happy with, and then copy it into here.
 
-# It's good practice to 'Comment' your code with text annotations such as these.
-# Anything following a # in R will not be treated as code. Use it to explain what lines are
-# doing, or to add reminders to yourself. Just because you understand what your code is doing
-# right now, it doesn't mean it will make sense a few months from now!
+#read NO
+my1_no = read.csv("courses/r-intro/data/taught/part_1/MY1_no_2018.csv") |> 
+  tibble() |> 
+  mutate(date = ymd_hms(date, tz = "GMT"))
+
+#read NO2
+my1_no2 = read.csv("courses/r-intro/data/taught/part_1/MY1_no2_2018.csv") |> 
+  tibble() |> 
+  mutate(date = ymd_hms(date, tz = "GMT"))
+
+#read met
+my1_met = read.csv("courses/r-intro/data/taught/part_1/MY1_met_2018.csv") |> 
+  tibble() |> 
+  mutate(date = ymd_hms(date, tz = "GMT"))
+
+#read o3
+my1_o3 = read.csv("courses/r-intro/data/taught/part_1/MY1_o3_2018.csv") |> 
+  tibble() |> 
+  mutate(date = ymd_hms(date, tz = "GMT"))
+
+#combine the tables
+my1 = my1_no |> 
+  left_join(my1_no2, by = "date") |> 
+  left_join(my1_o3, by = "date") |> 
+  left_join(my1_met, by = "date")
+
+mean(my1$no, na.rm = TRUE)
+median(my1$no, na.rm = TRUE)
+sd(my1$no, na.rm = TRUE)
+
+#summary of no column
+summary(my1$no)
+
+#summary of entire dataframe
+summary(my1)
+hist(my1$no2)
+density(my1$no, na.rm = TRUE) |> plot()
+
+#diagnostic check dates are in order (1:1 rel of date with index)
+plot(my1$date, type = "l")
+#line plot with explicit y and x axes
+plot(my1$date, my1$o3, type = "l")
+
+plot(my1$no2, my1$o3)
+
+#linear model of relationship between no2 and o3
+mod = lm(no2 ~ no, data=my1)
+#summary of the model
+summary(mod)
+
+#gets coefficients from model
+coefficients = coef(mod)
+
+#to get r^2 save output of summary
+mod_sum = summary(mod)
+mod_sum$r.squared
+names(mod_sum)
+
+plot(my1$no, my1$no2)
+abline(a=coefficients[1], b=coefficients[2], col = "blue")
+
+#colours in R are shown by colours()
