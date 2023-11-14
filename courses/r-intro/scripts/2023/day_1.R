@@ -23,6 +23,8 @@ my1_o3 = read.csv("courses/r-intro/data/taught/part_1/MY1_o3_2018.csv") |>
   tibble() |> 
   mutate(date = ymd_hms(date, tz = "GMT"))
 
+
+
 #combine the tables
 my1 = my1_no |> 
   left_join(my1_no2, by = "date") |> 
